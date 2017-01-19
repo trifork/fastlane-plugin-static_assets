@@ -2,47 +2,47 @@ module Fastlane
   module Actions
     class StaticImagesAction < Action
       def self.run(params)
-        if(!params[:paths].kind_of?(Array))
+        unless params[:paths].kind_of?(Array)
           params[:paths] = [params[:paths]]
         end
 
         image_names = []
-        params[:paths].each{|path|
-          path_arr = Dir["#{FastlaneCore::FastlaneFolder.path}../#{path}/**/*.imageset"].each{|image_path|
+        params[:paths].each do |path|
+          path_arr = Dir["#{FastlaneCore::FastlaneFolder.path}../#{path}/**/*.imageset"].each do |image_path|
             path_arr = image_path.split('/')
-            image_name = path_arr[path_arr.length-1].sub('.imageset', '')
+            image_name = path_arr[path_arr.length - 1].sub('.imageset', '')
             if image_names.include?(image_name)
               raise "'#{image_name}' is a duplicate".red
             end
             image_names << image_name
-          }
-        }
+          end
+        end
         output_path = "#{FastlaneCore::FastlaneFolder.path}/../#{params[:output]}"
-            FileUtils.mkdir_p(File.dirname(output_path))
+        FileUtils.mkdir_p(File.dirname(output_path))
         file = open(output_path, 'w')
 
         if params[:is_xamarin]
           file.write("using System;\nusing UIKit;\npublic class Images {\n")
-          image_names.each { |image_name|
+          image_names.each do |image_name|
             sanitized_image_name = sanitize_name(image_name)
-              file.write("\tpublic static UIImage #{sanitized_image_name} { get { return UIImage.FromBundle(\"#{image_name}\"); } }\n")
-          }
+            file.write("\tpublic static UIImage #{sanitized_image_name} { get { return UIImage.FromBundle(\"#{image_name}\"); } }\n")
+          end
           file.write("}")
         else
           file.write("import UIKit\nstruct Images {\n")
 
-          image_names.each { |image_name|
+          image_names.each do |image_name|
             sanitized_image_name = sanitize_name(image_name)
-              file.write("\tstatic let #{sanitized_image_name} = UIImage(named:\"#{image_name}\")!\n")
-          }
+            file.write("\tstatic let #{sanitized_image_name} = UIImage(named:\"#{image_name}\")!\n")
+          end
           file.write("}")
         end
 
-        file.close()
+        file.close
       end
 
-      def self.sanitize_name name
-        name.gsub(' ', '_')
+      def self.sanitize_name(name)
+        name.tr(' ', '_')
       end
 
       def self.description
@@ -72,7 +72,7 @@ module Fastlane
                                        env_name: "FL_IOS_IMAGE_ASSET_IS_XAMARIN",
                                        description: "should output as xamarin (C#)?",
                                        default_value: false,
-                                       is_string: false),
+                                       is_string: false)
         ]
       end
 
