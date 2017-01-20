@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{jje@trifork.com}
 
   spec.summary       = %q{Generate code for buildtime-safe assignments of assets.}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-static_assets"
+  spec.homepage      = "https://github.com/trifork/fastlane-plugin-static_assets"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
