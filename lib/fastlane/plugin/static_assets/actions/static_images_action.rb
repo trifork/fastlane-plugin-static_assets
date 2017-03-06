@@ -6,17 +6,7 @@ module Fastlane
           params[:paths] = [params[:paths]]
         end
 
-        image_names = []
-        params[:paths].each do |path|
-          path_arr = Dir["#{FastlaneCore::FastlaneFolder.path}../#{path}/**/*.imageset"].each do |image_path|
-            path_arr = image_path.split('/')
-            image_name = path_arr[path_arr.length - 1].sub('.imageset', '')
-            if image_names.include?(image_name)
-              raise "'#{image_name}' is a duplicate".red
-            end
-            image_names << image_name
-          end
-        end
+        image_names = Helper::StaticAssetsHelper.fetch_images(params[:paths]).keys
         output_path = "#{FastlaneCore::FastlaneFolder.path}/../#{params[:output]}"
         FileUtils.mkdir_p(File.dirname(output_path))
         file = open(output_path, 'w')
@@ -27,22 +17,17 @@ module Fastlane
             sanitized_image_name = sanitize_name(image_name)
             file.write("\tpublic static UIImage #{sanitized_image_name} { get { return UIImage.FromBundle(\"#{image_name}\"); } }\n")
           end
-          file.write("}")
         else
           file.write("import UIKit\nstruct Images {\n")
 
           image_names.each do |image_name|
-            sanitized_image_name = sanitize_name(image_name)
+            sanitized_image_name = Helper::StaticAssetsHelper.sanitize_name(image_name)
             file.write("\tstatic let #{sanitized_image_name} = UIImage(named:\"#{image_name}\")!\n")
           end
-          file.write("}")
         end
+        file.write("}")
 
         file.close
-      end
-
-      def self.sanitize_name(name)
-        name.tr(' ', '_')
       end
 
       def self.description
