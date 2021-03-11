@@ -11,6 +11,7 @@ module Fastlane
         FileUtils.mkdir_p(File.dirname(output_path))
         file = open(output_path, 'w')
 
+        file.write("// swiftlint:disable all\n")
         if params[:is_xamarin]
           file.write("using System;\nusing UIKit;\npublic class Images {\n")
           image_names.each do |image_name|
